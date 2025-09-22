@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from "react";
+import { useFormik } from "formik";
+import * as Yup from "yup";
 import { useDispatch, useSelector } from "react-redux";
 import { createEmployee } from "../../redux/action/user";
 import { useNavigate } from "react-router-dom";
@@ -16,8 +18,6 @@ import {
   Checkbox,
 } from "@mui/material";
 import { PiNotepad, PiXLight } from "react-icons/pi";
-import { CFormSelect } from "@coreui/react";
-import { pakistanCities } from "../../constant";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="down" ref={ref} {...props} />;
@@ -39,25 +39,42 @@ const CreateUser = ({ open, setOpen, scroll }) => {
   //////////////////////////////////////// STATES /////////////////////////////////////
   const [employeeData, setEmployeeData] = useState(initialEmployeeState);
 
+  const validationSchema = Yup.object({
+    firstName: Yup.string().required('First name is required'),
+    lastName: Yup.string().required('Last name is required'),
+    username: Yup.string().required('Username is required'),
+    password: Yup.string().required('Password is required').min(8, 'Password must be at least 8 characters long'),
+    phone: Yup.string()
+      .required('Phone is required')
+      .matches(/^\d+$/, 'Only digits are allowed'),
+  });
+
+  const formik = useFormik({
+    initialValues: initialEmployeeState,
+    validationSchema,
+    onSubmit: (values) => {
+      dispatch(createEmployee(values, setOpen));
+      formik.resetForm();
+    },
+  });
+
   //////////////////////////////////////// USE EFFECTS /////////////////////////////////////
 
   //////////////////////////////////////// FUNCTIONS /////////////////////////////////////
   const handleSubmit = (e) => {
     e.preventDefault();
-    const { firstName, lastName, username, password, phone, email } = employeeData
-    if (!firstName || !lastName || !username || !password || !phone  )
-      return alert("Make sure to provide all the fields")
-    dispatch(createEmployee(employeeData, setOpen));
-    setEmployeeData(initialEmployeeState)
+    formik.handleSubmit();
   };
 
   const handleChange = (field, value) => {
-    setEmployeeData((prevFilters) => ({ ...prevFilters, [field]: value, }));
+    formik.setFieldValue(field, value);
+    if (!formik.touched[field]) formik.setFieldTouched(field, true, false);
   };
 
   const handleClose = () => {
     setOpen(false);
     setEmployeeData(initialEmployeeState)
+    formik.resetForm();
   };
 
   return (
@@ -91,8 +108,12 @@ const CreateUser = ({ open, setOpen, scroll }) => {
                   <TextField
                     size="small"
                     fullWidth
-                    value={employeeData.firstName}
-                    onChange={(e) => handleChange('firstName', e.target.value)}
+                    name="firstName"
+                    value={formik.values.firstName}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    error={formik.touched.firstName && Boolean(formik.errors.firstName)}
+                    helperText={formik.touched.firstName ? formik.errors.firstName : ''}
                   />
                 </td>
               </tr>
@@ -102,8 +123,12 @@ const CreateUser = ({ open, setOpen, scroll }) => {
                   <TextField
                     size="small"
                     fullWidth
-                    value={employeeData.lastName}
-                    onChange={(e) => handleChange('lastName', e.target.value)}
+                    name="lastName"
+                    value={formik.values.lastName}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    error={formik.touched.lastName && Boolean(formik.errors.lastName)}
+                    helperText={formik.touched.lastName ? formik.errors.lastName : ''}
                   />
                 </td>
               </tr>
@@ -113,8 +138,12 @@ const CreateUser = ({ open, setOpen, scroll }) => {
                   <TextField
                     size="small"
                     fullWidth
-                    value={employeeData.username}
-                    onChange={(e) => handleChange('username', e.target.value)}
+                    name="username"
+                    value={formik.values.username}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    error={formik.touched.username && Boolean(formik.errors.username)}
+                    helperText={formik.touched.username ? formik.errors.username : ''}
                   />
                 </td>
               </tr>
@@ -135,10 +164,14 @@ const CreateUser = ({ open, setOpen, scroll }) => {
                 <td className="pb-4">
                   <TextField
                     type="password"
-                    value={employeeData.password}
-                    onChange={(e) => handleChange("password", e.target.value)}
+                    name="password"
+                    value={formik.values.password}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
                     size="small"
                     fullWidth
+                    error={formik.touched.password && Boolean(formik.errors.password)}
+                    helperText={formik.touched.password ? formik.errors.password : ''}
                   />
                 </td>
               </tr>
@@ -148,9 +181,13 @@ const CreateUser = ({ open, setOpen, scroll }) => {
                   <TextField
                     type="number"
                     size="small"
-                    value={employeeData.phone}
-                    onChange={(e) => handleChange("phone", e.target.value)}
+                    name="phone"
+                    value={formik.values.phone}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
                     fullWidth
+                    error={formik.touched.phone && Boolean(formik.errors.phone)}
+                    helperText={formik.touched.phone ? formik.errors.phone : ''}
                   />
                 </td>
               </tr>

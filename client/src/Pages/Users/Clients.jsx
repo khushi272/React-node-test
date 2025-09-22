@@ -12,6 +12,7 @@ import { CiEdit } from "react-icons/ci";
 import { Dropdown, Menu, MenuButton, MenuItem, menuItemClasses } from "@mui/base";
 import Filter from "./Filter";
 import User from "./User";
+import EditEmployee from "./Edit";
 import DeleteClient from "./Delete";
 
 const blue = {
@@ -149,6 +150,13 @@ const Clients = () => {
               />
             </Tooltip>
           }
+          <Tooltip placement="top" title="Edit" arrow>
+            {" "}
+            <CiEdit
+              onClick={() => handleOpenEditModal(params.row)}
+              className="cursor-pointer text-green-500 text-[23px] hover:text-green-600"
+            />
+          </Tooltip>
         </div>
       ),
     },
@@ -187,6 +195,7 @@ const Clients = () => {
     <div className="w-full">
 
       <DeleteClient open={openDeleteModal} setOpen={setOpenDeleteModal} userId={selectedUserId} />
+      <EditEmployee open={openEditModal} setOpen={setOpenEditModal} />
       <Filter open={openFilters} setOpen={setOpenFilters} />
       <User open={openUser} setOpen={setOpenUser} />
 
